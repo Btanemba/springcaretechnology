@@ -7,6 +7,7 @@ use App\Models\EmailSubscriber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 use Illuminate\View\View;
 
 class NewsletterController extends Controller
@@ -20,7 +21,9 @@ class NewsletterController extends Controller
         $subscriber = EmailSubscriber::firstOrNew(['email' => $email]);
 
         if ($subscriber->confirmed_at && ! $subscriber->unsubscribed_at) {
-            return back()->with('newsletter_status', 'If this address is subscribed, it will stay on the new-device list.');
+            return back()->with('newsletter_status', 'If this address is subscribed, it will stay on the new-device list.')
+                ->with('newsletter_status_type', 'info')
+                ->with('newsletter_status_title', 'Subscription status');
         }
 
         $subscriber->forceFill([
@@ -28,9 +31,19 @@ class NewsletterController extends Controller
             'unsubscribed_at' => null,
         ])->save();
 
-        Mail::to($subscriber->email)->queue(new ConfirmNewsletterSubscription($subscriber));
+        try {
+            Mail::to($subscriber->email)->send(new ConfirmNewsletterSubscription($subscriber));
+        } catch (Throwable $exception) {
+            report($exception);
 
-        return back()->with('newsletter_status', 'Please check your inbox to confirm your subscription.');
+            return back()->with('newsletter_status', 'We could not send a confirmation email right now. Please try again later.')
+                ->with('newsletter_status_type', 'error')
+                ->with('newsletter_status_title', 'Email not sent');
+        }
+
+        return back()->with('newsletter_status', 'Please check your inbox to confirm your subscription.')
+            ->with('newsletter_status_type', 'success')
+            ->with('newsletter_status_title', 'Check your inbox');
     }
 
     public function showConfirmation(EmailSubscriber $subscriber): View
@@ -45,7 +58,9 @@ class NewsletterController extends Controller
         }
 
         return redirect()->route('storefront.home')
-            ->with('newsletter_status', 'Your email preferences have been updated.');
+            ->with('newsletter_status', 'Your email preferences have been updated.')
+            ->with('newsletter_status_type', 'success')
+            ->with('newsletter_status_title', 'Subscription confirmed');
     }
 
     public function showUnsubscribe(EmailSubscriber $subscriber): View
@@ -60,6 +75,8 @@ class NewsletterController extends Controller
         }
 
         return redirect()->route('storefront.home')
-            ->with('newsletter_status', 'You have been unsubscribed from new-device emails.');
+            ->with('newsletter_status', 'You have been unsubscribed from new-device emails.')
+            ->with('newsletter_status_type', 'success')
+            ->with('newsletter_status_title', 'Unsubscribed');
     }
 }

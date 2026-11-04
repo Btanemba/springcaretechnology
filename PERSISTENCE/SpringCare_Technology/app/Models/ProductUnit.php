@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
-use App\Jobs\NotifySubscribersOfProductUnit;
+use App\Support\ProductUnitNewsletter;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,13 +65,13 @@ class ProductUnit extends Model
             && $product->category?->is_active;
     }
 
-    public function queuePostedNotification(): void
+    public function sendPostedNotification(): void
     {
         if ($this->newsletter_notified_at || ! $this->isPubliclyPostedWithPhotos()) {
             return;
         }
 
-        NotifySubscribersOfProductUnit::dispatch($this->getKey())->afterCommit();
+        app(ProductUnitNewsletter::class)->send($this);
     }
 
     protected static function booted(): void
@@ -86,10 +86,10 @@ class ProductUnit extends Model
             }
         });
 
-        static::created(fn (ProductUnit $unit) => $unit->queuePostedNotification());
+        static::created(fn (ProductUnit $unit) => $unit->sendPostedNotification());
         static::updated(function (ProductUnit $unit) {
             if ($unit->wasChanged(['status', 'photos'])) {
-                $unit->queuePostedNotification();
+                $unit->sendPostedNotification();
             }
         });
 

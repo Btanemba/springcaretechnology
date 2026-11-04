@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Mail\ConfirmNewsletterSubscription;
-use App\Jobs\NotifySubscribersOfProductUnit;
 use App\Mail\NewProductUnitPosted;
 use App\Models\Brand;
 use App\Models\Category;
@@ -11,7 +10,6 @@ use App\Models\EmailSubscriber;
 use App\Models\Product;
 use App\Models\ProductUnit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
@@ -31,7 +29,7 @@ class NewsletterSubscriptionTest extends TestCase
 
         $this->assertSame('reader@example.com', $subscriber->email);
         $this->assertNull($subscriber->confirmed_at);
-        Mail::assertQueued(ConfirmNewsletterSubscription::class);
+        Mail::assertSent(ConfirmNewsletterSubscription::class);
     }
 
     public function test_signed_confirmation_activates_the_subscription_only_after_post(): void
@@ -59,9 +57,10 @@ class NewsletterSubscriptionTest extends TestCase
         $this->assertNull($subscriber->fresh()->confirmed_at);
     }
 
-    public function test_available_unit_with_photos_dispatches_a_notification_after_it_is_saved(): void
+    public function test_available_unit_with_photos_sends_a_notification_after_it_is_saved(): void
     {
-        Queue::fake();
+        Mail::fake();
+        EmailSubscriber::create(['email' => 'confirmed@example.com', 'confirmed_at' => now()]);
         $product = $this->createProduct('published');
 
         $unit = $product->units()->create([
@@ -72,12 +71,13 @@ class NewsletterSubscriptionTest extends TestCase
             'photos' => ['product-units/device-001.jpg'],
         ]);
 
-        Queue::assertPushed(NotifySubscribersOfProductUnit::class, fn ($job) => $job->productUnitId === $unit->id);
+        Mail::assertSent(NewProductUnitPosted::class);
+        $this->assertNotNull($unit->fresh()->newsletter_notified_at);
     }
 
     public function test_unit_without_photos_or_a_published_parent_does_not_dispatch_a_notification(): void
     {
-        Queue::fake();
+        Mail::fake();
         $publishedProduct = $this->createProduct('published');
         $draftProduct = $this->createProduct('draft', 'other-device');
 
@@ -95,12 +95,13 @@ class NewsletterSubscriptionTest extends TestCase
             'photos' => ['product-units/device-003.jpg'],
         ]);
 
-        Queue::assertNotPushed(NotifySubscribersOfProductUnit::class);
+        Mail::assertNothingSent();
     }
 
     public function test_adding_photos_to_an_existing_available_unit_dispatches_a_notification(): void
     {
-        Queue::fake();
+        Mail::fake();
+        EmailSubscriber::create(['email' => 'confirmed@example.com', 'confirmed_at' => now()]);
         $product = $this->createProduct('published');
         $unit = $product->units()->create([
             'sku' => 'DEVICE-006',
@@ -111,12 +112,13 @@ class NewsletterSubscriptionTest extends TestCase
 
         $unit->update(['photos' => ['product-units/device-006.jpg']]);
 
-        Queue::assertPushed(NotifySubscribersOfProductUnit::class, fn ($job) => $job->productUnitId === $unit->id);
+        Mail::assertSent(NewProductUnitPosted::class);
     }
 
     public function test_publishing_a_product_dispatches_notifications_for_existing_eligible_units(): void
     {
-        Queue::fake();
+        Mail::fake();
+        EmailSubscriber::create(['email' => 'confirmed@example.com', 'confirmed_at' => now()]);
         $product = $this->createProduct('draft');
         $unit = $product->units()->create([
             'sku' => 'DEVICE-004',
@@ -128,20 +130,13 @@ class NewsletterSubscriptionTest extends TestCase
 
         $product->update(['status' => 'published']);
 
-        Queue::assertPushed(NotifySubscribersOfProductUnit::class, fn ($job) => $job->productUnitId === $unit->id);
+        Mail::assertSent(NewProductUnitPosted::class);
     }
 
     public function test_unit_notification_only_goes_to_confirmed_subscribers_who_have_not_unsubscribed(): void
     {
         Mail::fake();
         $product = $this->createProduct('published');
-        $unit = $product->units()->create([
-            'sku' => 'DEVICE-005',
-            'condition' => 'good',
-            'selling_price' => 50000,
-            'status' => 'available',
-            'photos' => ['product-units/device-005.jpg'],
-        ]);
         EmailSubscriber::create(['email' => 'confirmed@example.com', 'confirmed_at' => now()]);
         EmailSubscriber::create(['email' => 'pending@example.com']);
         EmailSubscriber::create([
@@ -150,10 +145,17 @@ class NewsletterSubscriptionTest extends TestCase
             'unsubscribed_at' => now(),
         ]);
 
-        (new NotifySubscribersOfProductUnit($unit->id))->handle();
+        $unit = $product->units()->create([
+            'sku' => 'DEVICE-005',
+            'condition' => 'good',
+            'selling_price' => 50000,
+            'status' => 'available',
+            'photos' => ['product-units/device-005.jpg'],
+        ]);
 
-        Mail::assertQueued(NewProductUnitPosted::class, 1);
-        Mail::assertQueued(NewProductUnitPosted::class, fn ($mail) => $mail->hasTo('confirmed@example.com'));
+        Mail::assertSent(NewProductUnitPosted::class, fn ($mail) => $mail->hasTo('confirmed@example.com'));
+        Mail::assertNotSent(NewProductUnitPosted::class, fn ($mail) => $mail->hasTo('pending@example.com'));
+        Mail::assertNotSent(NewProductUnitPosted::class, fn ($mail) => $mail->hasTo('unsubscribed@example.com'));
         $this->assertNotNull($unit->fresh()->newsletter_notified_at);
     }
 

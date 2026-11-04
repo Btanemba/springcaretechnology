@@ -50,7 +50,7 @@ class Product extends Model
         static::updated(function (Product $product) {
             if ($product->wasChanged(['status', 'category_id', 'brand_id'])) {
                 $product->units()->whereNull('newsletter_notified_at')->get()
-                    ->each(fn (ProductUnit $unit) => $unit->queuePostedNotification());
+                    ->each(fn (ProductUnit $unit) => $unit->sendPostedNotification());
             }
         });
 

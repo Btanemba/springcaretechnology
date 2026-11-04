@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="{{ asset('css/storefront.css') }}?v={{ filemtime(public_path('css/storefront.css')) }}">
     <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="{{ asset('js/price-format.js') }}"></script>
     <script defer src="{{ asset('js/storefront.js') }}"></script>
 </head>
@@ -64,7 +66,9 @@
                     <input id="newsletter-email" type="email" name="email" value="{{ old('email') }}" placeholder="Email address" aria-label="Email address" autocomplete="email" maxlength="254" required>
                     <button class="button button-primary" type="submit">Subscribe <i data-lucide="arrow-right"></i></button>
                 </form>
-                @if(session('newsletter_status'))<p class="newsletter-status" role="status">{{ session('newsletter_status') }}</p>@endif
+                @if(session('newsletter_status'))
+                    <p class="newsletter-status" role="status" data-newsletter-status data-type="{{ session('newsletter_status_type', 'success') }}" data-title="{{ session('newsletter_status_title', 'Newsletter update') }}">{{ session('newsletter_status') }}</p>
+                @endif
             </section>
             <nav aria-label="Footer navigation"><a href="{{ route('storefront.shop') }}">Shop devices <i data-lucide="arrow-up-right"></i></a><a href="{{ route('storefront.home') }}#our-approach">Our approach <i data-lucide="arrow-up-right"></i></a></nav>
         </div>

@@ -4,6 +4,18 @@
     document.documentElement.classList.add('js-ready');
     window.lucide?.createIcons({ attrs: { 'stroke-width': 1.65, 'aria-hidden': 'true' } });
 
+    const newsletterStatus = document.querySelector('[data-newsletter-status]');
+    if (newsletterStatus && window.Swal) {
+        window.Swal.fire({
+            icon: newsletterStatus.dataset.type || 'success',
+            title: newsletterStatus.dataset.title || 'Newsletter update',
+            text: newsletterStatus.textContent.trim(),
+            confirmButtonText: 'Got it',
+            confirmButtonColor: '#176b53',
+        });
+        newsletterStatus.hidden = true;
+    }
+
     const cart = document.querySelector('#cart-dialog');
     let cartOpener;
 

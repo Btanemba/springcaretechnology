@@ -3,18 +3,13 @@
 namespace App\Mail;
 
 use App\Models\EmailSubscriber;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\URL;
 
-class ConfirmNewsletterSubscription extends Mailable implements ShouldQueue
+class ConfirmNewsletterSubscription extends Mailable
 {
-    use Queueable, SerializesModels;
-
     public string $confirmationUrl;
 
     public function __construct(public EmailSubscriber $subscriber)
