@@ -34,9 +34,19 @@ class StorefrontTest extends TestCase
         ]);
         $product->units()->create([
             'sku' => 'S7-001',
+            'storage' => '64 GB',
+            'color' => 'Black',
             'website' => 'https://example.com/samsung-s7',
             'condition' => 'good',
             'selling_price' => 50000,
+            'status' => 'available',
+        ]);
+        $product->units()->create([
+            'sku' => 'S7-002',
+            'storage' => '128 GB',
+            'color' => 'Silver',
+            'condition' => 'excellent',
+            'selling_price' => 65000,
             'status' => 'available',
         ]);
 
@@ -44,6 +54,10 @@ class StorefrontTest extends TestCase
         $this->get('/shop')->assertOk();
         $this->get('/shop/samsung-s7')
             ->assertOk()
+            ->assertSee('2 available')
+            ->assertSee('S7-001')
+            ->assertSee('S7-002')
+            ->assertSee('128 GB / Silver')
             ->assertDontSee('Original source website')
             ->assertDontSee('https://example.com/samsung-s7');
     }

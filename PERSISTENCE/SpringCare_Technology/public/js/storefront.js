@@ -64,23 +64,6 @@
         select.addEventListener('change', () => select.form?.requestSubmit());
     });
 
-    const unitPicker = document.querySelector('[data-unit-picker]');
-    const activateUnit = (unitId) => {
-        const panels = [...document.querySelectorAll('[data-unit-panel]')];
-        if (!panels.some((panel) => panel.dataset.unitPanel === unitId)) return;
-        panels.forEach((panel) => { panel.hidden = panel.dataset.unitPanel !== unitId; });
-        if (unitPicker) unitPicker.value = unitId;
-    };
-    unitPicker?.addEventListener('change', () => {
-        activateUnit(unitPicker.value);
-        const url = new URL(window.location.href);
-        url.searchParams.set('unit', unitPicker.value);
-        window.history.replaceState(null, '', url);
-    });
-    window.addEventListener('pageshow', () => {
-        if (unitPicker) activateUnit(unitPicker.value);
-    });
-
     document.querySelectorAll('[data-gallery]').forEach((gallery) => {
         const image = gallery.querySelector('[data-main-photo]');
         const thumbnails = [...gallery.querySelectorAll('[data-photo-src]')];

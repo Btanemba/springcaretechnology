@@ -7,7 +7,28 @@
     <div class="shell product-section">
         <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="{{ route('storefront.home') }}">Home</a><i data-lucide="chevron-right"></i><a href="{{ route('storefront.shop') }}">Shop</a><i data-lucide="chevron-right"></i><a href="{{ route('storefront.shop', ['category' => $product->category->slug]) }}">{{ $product->category->name }}</a><i data-lucide="chevron-right"></i><span aria-current="page">{{ $product->name }}</span></nav>
         @if($product->units->isNotEmpty())
-            <div class="device-picker-row"><a class="text-link" href="{{ route('storefront.shop') }}"><i data-lucide="arrow-left"></i> All devices</a><form method="GET" action="{{ route('storefront.product', $product->slug) }}"><label for="unit-picker">Choose your device <span>({{ $product->units->count() }} available)</span></label><div class="device-picker-controls"><select id="unit-picker" name="unit" data-unit-picker>@foreach($product->units as $option)<option value="{{ $option->id }}" @selected($selectedUnit?->id === $option->id)>{{ implode(' / ', array_filter([$option->storage, $option->color, \App\Models\ProductUnit::CONDITIONS[$option->condition] ?? $option->condition])) }} &middot; {{ \App\Support\Naira::format($option->selling_price) }} &middot; {{ $option->sku }}</option>@endforeach</select><button class="button button-secondary no-js-only" type="submit">View device</button></div></form></div>
+            <section class="device-picker-row" aria-labelledby="unit-choices-title">
+                <a class="text-link" href="{{ route('storefront.shop') }}"><i data-lucide="arrow-left"></i> All devices</a>
+                <div class="unit-choice-section">
+                    <div class="unit-choice-heading"><h2 id="unit-choices-title">Available individual units</h2><span>{{ $product->units->count() }} available</span></div>
+                    <div class="unit-choice-list">
+                        @foreach($product->units as $option)
+                            @php($optionPhoto = $option->photoUrls()[0] ?? null)
+                            <a class="unit-choice {{ $selectedUnit?->id === $option->id ? 'is-selected' : '' }}" href="{{ route('storefront.product', ['slug' => $product->slug, 'unit' => $option->id]) }}" @if($selectedUnit?->id === $option->id) aria-current="true" @endif>
+                                <span class="unit-choice-photo">
+                                    @if($optionPhoto)<img src="{{ $optionPhoto }}" alt="" loading="lazy" width="80" height="80">@else<i data-lucide="image"></i>@endif
+                                </span>
+                                <span class="unit-choice-info">
+                                    <span class="unit-choice-sku">{{ $option->sku }}</span>
+                                    <strong>{{ implode(' / ', array_filter([$option->storage, $option->color])) ?: 'Device unit' }}</strong>
+                                    <span class="unit-choice-condition">{{ \App\Models\ProductUnit::CONDITIONS[$option->condition] ?? $option->condition }}</span>
+                                    <span class="unit-choice-price">{{ \App\Support\Naira::format($option->selling_price) }}</span>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
             @foreach($product->units as $unit)
                 @php($photos = $unit->photoUrls())
                 <section class="unit-panel" data-unit-panel="{{ $unit->id }}" @if($selectedUnit?->id !== $unit->id) hidden @endif aria-label="{{ $product->name }}, {{ $unit->sku }}">
