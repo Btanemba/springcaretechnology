@@ -25,6 +25,7 @@ Route::group([
     Route::get('product/{productId}/units', 'ProductCrudController@units');
     Route::post('product/{productId}/units', 'ProductCrudController@storeUnit');
     Route::crud('product-unit', 'ProductUnitCrudController');
+    Route::crud('delivery-schedule', 'DeliveryScheduleCrudController');
 }); // this should be the absolute last line of this file
 
 /**

@@ -10,6 +10,26 @@
 
     <div class="value-strip"><div class="shell value-strip-inner"><span><i data-lucide="scan-eye"></i> Actual device details</span><span><i data-lucide="battery-charging"></i> Battery health, upfront</span><span><i data-lucide="sliders-horizontal"></i> A device for your needs</span></div></div>
 
+    @if($deliverySchedules->isNotEmpty())
+        <section class="delivery-band" aria-labelledby="delivery-title">
+            <div class="shell delivery-inner">
+                <div class="delivery-intro">
+                    <p class="eyebrow"><i data-lucide="truck"></i> DELIVERY ACROSS NIGERIA</p>
+                    <h2 id="delivery-title">Coming to a city near you.</h2>
+                    <p>Find our upcoming delivery stops.</p>
+                </div>
+                <div class="delivery-list">
+                    @foreach($deliverySchedules as $schedule)
+                        <article class="delivery-stop">
+                            <span class="delivery-stop-icon"><i data-lucide="map-pin"></i></span>
+                            <div><h3>{{ $schedule->city }}</h3><p>{{ \App\Models\DeliverySchedule::MONTHS[$schedule->month] }} {{ $schedule->year }}</p></div>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     <section class="shell section" id="categories" aria-labelledby="categories-title">
         <div class="section-heading"><div><p class="eyebrow">FIND YOUR FIT</p><h2 id="categories-title">Your day. Your device.</h2></div><a class="text-link" href="{{ route('storefront.shop') }}">Browse everything <i data-lucide="arrow-right"></i></a></div>
         <div class="category-list">

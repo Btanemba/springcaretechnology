@@ -44,7 +44,7 @@ class StorefrontTest extends TestCase
         $this->get('/shop')->assertOk();
         $this->get('/shop/samsung-s7')
             ->assertOk()
-            ->assertSee('Original source website')
-            ->assertSee('https://example.com/samsung-s7');
+            ->assertDontSee('Original source website')
+            ->assertDontSee('https://example.com/samsung-s7');
     }
 }

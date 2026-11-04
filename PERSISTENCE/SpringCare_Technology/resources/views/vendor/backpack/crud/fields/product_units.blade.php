@@ -40,26 +40,26 @@
         </div>
         <div class="product-unit-dialog__body">
             <div class="product-unit-form-grid">
-                <label>SKU <input data-unit-field="sku" required maxlength="100"></label>
+                <label>SKU <input data-unit-field="sku" data-required="SKU" aria-required="true" maxlength="100"></label>
                 <label>Serial number <input data-unit-field="serial_number" maxlength="100"></label>
                 <label class="product-unit-form-grid__wide">Original website
-                    <input data-unit-field="website" type="url" maxlength="2048" placeholder="https://...">
+                    <input data-unit-field="website" type="text" inputmode="url" maxlength="2048" placeholder="https://...">
                 </label>
                 <label>Storage <input data-unit-field="storage" maxlength="100" placeholder="e.g. 128 GB"></label>
                 <label>Color <input data-unit-field="color" maxlength="100"></label>
-                <label>Battery health (%) <input data-unit-field="battery_health" type="number" min="0" max="100" step="1"></label>
+                <label>Battery health (%) <input data-unit-field="battery_health" type="text" inputmode="numeric"></label>
                 <label>Condition
-                    <select data-unit-field="condition" required>
+                    <select data-unit-field="condition" data-required="Condition" aria-required="true">
                         @foreach (\App\Models\ProductUnit::CONDITIONS as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
                     </select>
                 </label>
                 <label>Selling price (NGN)
-                    <input data-unit-field="selling_price" inputmode="decimal" required placeholder="50,000">
+                    <input data-unit-field="selling_price" data-required="Selling price" inputmode="decimal" aria-required="true" placeholder="50,000">
                 </label>
                 <label>Status
-                    <select data-unit-field="status" required>
+                    <select data-unit-field="status" data-required="Status" aria-required="true">
                         @foreach (\App\Models\ProductUnit::STATUSES as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
@@ -228,6 +228,15 @@
             saveButton.addEventListener('click', async () => {
                 error.hidden = true;
                 error.textContent = '';
+
+                const missingField = Array.from(panel.querySelectorAll('[data-required]'))
+                    .find((field) => !field.value.trim());
+                if (missingField) {
+                    error.textContent = `${missingField.dataset.required} is required.`;
+                    error.hidden = false;
+                    missingField.focus();
+                    return;
+                }
 
                 const data = new FormData();
                 data.append('product_id', panel.dataset.productId);

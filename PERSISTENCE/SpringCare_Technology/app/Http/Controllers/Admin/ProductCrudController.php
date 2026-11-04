@@ -136,7 +136,7 @@ class ProductCrudController extends CrudController
             ->map(fn ($photo) => $photo->store('product-units', 'public'))
             ->all();
         $attributes = collect($validated)->except(['product_id', 'photos'])->all();
-        $attributes['photos'] = $photos ? json_encode($photos, JSON_THROW_ON_ERROR) : null;
+        $attributes['photos'] = $photos ?: null;
 
         $unit = $product->units()->create($attributes);
 

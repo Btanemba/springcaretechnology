@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\DeliverySchedule;
 use App\Models\Product;
 use App\Models\ProductUnit;
 use App\Support\AcademyAdvertisement;
@@ -32,10 +33,12 @@ class StorefrontController extends Controller
             ->latest()->take(4)->get();
 
         $categories = Category::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $deliverySchedules = DeliverySchedule::query()->where('is_published', true)
+            ->orderBy('year')->orderBy('month')->orderBy('city')->get();
 
         $showAcademyAdvertisement = $advertisement->isVisible();
 
-        return $this->render('storefront.home', compact('products', 'categories', 'showAcademyAdvertisement'));
+        return $this->render('storefront.home', compact('products', 'categories', 'deliverySchedules', 'showAcademyAdvertisement'));
     }
 
     public function shop(Request $request): View

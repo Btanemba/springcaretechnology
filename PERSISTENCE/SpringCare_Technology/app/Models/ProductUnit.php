@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use App\Jobs\NotifySubscribersOfProductUnit;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,7 +31,9 @@ class ProductUnit extends Model
     {
         return [
             'battery_health' => 'integer',
+            'photos' => 'array',
             'selling_price' => 'decimal:2',
+            'newsletter_notified_at' => 'datetime',
         ];
     }
 
@@ -49,6 +52,28 @@ class ProductUnit extends Model
             ->values()->all();
     }
 
+    public function isPubliclyPostedWithPhotos(): bool
+    {
+        if ($this->status !== 'available' || $this->photoUrls() === []) {
+            return false;
+        }
+
+        $product = $this->product()->with(['brand', 'category'])->first();
+
+        return $product?->status === 'published'
+            && $product->brand?->is_active
+            && $product->category?->is_active;
+    }
+
+    public function queuePostedNotification(): void
+    {
+        if ($this->newsletter_notified_at || ! $this->isPubliclyPostedWithPhotos()) {
+            return;
+        }
+
+        NotifySubscribersOfProductUnit::dispatch($this->getKey())->afterCommit();
+    }
+
     protected static function booted(): void
     {
         static::saving(function (ProductUnit $unit) {
@@ -58,6 +83,13 @@ class ProductUnit extends Model
                 }
 
                 $unit->updated_by = $userId;
+            }
+        });
+
+        static::created(fn (ProductUnit $unit) => $unit->queuePostedNotification());
+        static::updated(function (ProductUnit $unit) {
+            if ($unit->wasChanged(['status', 'photos'])) {
+                $unit->queuePostedNotification();
             }
         });
 
