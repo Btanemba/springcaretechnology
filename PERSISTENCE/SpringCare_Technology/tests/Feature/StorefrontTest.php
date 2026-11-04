@@ -51,7 +51,11 @@ class StorefrontTest extends TestCase
         ]);
 
         $this->get('/')->assertOk();
-        $this->get('/shop')->assertOk();
+        $this->get('/shop')
+            ->assertOk()
+            ->assertSee('S7-001')
+            ->assertSee('S7-002')
+            ->assertSee('128 GB / Silver');
         $this->get('/shop/samsung-s7')
             ->assertOk()
             ->assertSee('2 available')

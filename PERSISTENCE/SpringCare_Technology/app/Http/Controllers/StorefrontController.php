@@ -58,61 +58,60 @@ class StorefrontController extends Controller
             'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc', 'name'])],
         ]);
 
-        $matchingUnits = function ($query) use ($filters): void {
-            $query->where('status', 'available');
+        $query = ProductUnit::query()
+            ->where('product_units.status', 'available')
+            ->whereHas('product', fn (Builder $query) => $query->whereIn(
+                'products.id',
+                $this->products()->select('products.id'),
+            ))
+            ->with(['product.brand', 'product.category']);
 
-            foreach (['condition', 'storage'] as $field) {
-                if (isset($filters[$field]) && $filters[$field] !== '') {
-                    $query->where($field, $filters[$field]);
-                }
+        foreach (['condition', 'storage'] as $field) {
+            if (isset($filters[$field]) && $filters[$field] !== '') {
+                $query->where('product_units.'.$field, $filters[$field]);
             }
+        }
 
-            if (isset($filters['min_price'])) {
-                $query->where('selling_price', '>=', $filters['min_price']);
-            }
+        if (isset($filters['min_price'])) {
+            $query->where('product_units.selling_price', '>=', $filters['min_price']);
+        }
 
-            if (isset($filters['max_price'])) {
-                $query->where('selling_price', '<=', $filters['max_price']);
-            }
-        };
-
-        $query = $this->products()->whereHas('units', $matchingUnits)
-            ->with(['brand', 'category', 'units' => function ($query) use ($matchingUnits): void {
-                $matchingUnits($query);
-                $query->orderBy('selling_price');
-            }])
-            ->withMin(['units as lowest_price' => $matchingUnits], 'selling_price');
+        if (isset($filters['max_price'])) {
+            $query->where('product_units.selling_price', '<=', $filters['max_price']);
+        }
 
         if (! empty($filters['q'])) {
             $search = $filters['q'];
             $query->where(function (Builder $query) use ($search): void {
-                $query->where('name', 'like', '%'.$search.'%')
-                    ->orWhere('model_number', 'like', '%'.$search.'%')
-                    ->orWhereHas('brand', fn (Builder $query) => $query->where('name', 'like', '%'.$search.'%'));
+                $query->where('product_units.sku', 'like', '%'.$search.'%')
+                    ->orWhereHas('product', fn (Builder $productQuery) => $productQuery
+                        ->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('model_number', 'like', '%'.$search.'%')
+                        ->orWhereHas('brand', fn (Builder $brandQuery) => $brandQuery->where('name', 'like', '%'.$search.'%')));
             });
         }
 
         foreach (['brand', 'category'] as $relation) {
             if (! empty($filters[$relation])) {
-                $query->whereHas($relation, fn (Builder $query) => $query->where('slug', $filters[$relation]));
+                $query->whereHas('product.'.$relation, fn (Builder $relatedQuery) => $relatedQuery->where('slug', $filters[$relation]));
             }
         }
 
         match ($filters['sort'] ?? 'newest') {
-            'price_asc' => $query->orderBy('lowest_price'),
-            'price_desc' => $query->orderByDesc('lowest_price'),
-            'name' => $query->orderBy('name'),
-            default => $query->latest(),
+            'price_asc' => $query->orderBy('product_units.selling_price'),
+            'price_desc' => $query->orderByDesc('product_units.selling_price'),
+            'name' => $query->orderBy(Product::query()->select('name')->whereColumn('products.id', 'product_units.product_id')),
+            default => $query->latest('product_units.created_at'),
         };
 
-        $products = $query->orderBy('products.id')->paginate(12)->withQueryString();
+        $units = $query->orderBy('product_units.id')->paginate(12)->withQueryString();
         $brands = Brand::query()->where('is_active', true)->orderBy('name')->get();
         $categories = Category::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
         $storages = ProductUnit::query()->where('status', 'available')->whereNotNull('storage')->where('storage', '!=', '')
             ->whereHas('product', fn (Builder $query) => $query->whereIn('id', $this->products()->select('products.id')))
             ->distinct()->orderBy('storage')->pluck('storage');
 
-        return $this->render('storefront.shop', compact('products', 'brands', 'categories', 'storages', 'filters'));
+        return $this->render('storefront.shop', compact('units', 'brands', 'categories', 'storages', 'filters'));
     }
 
     public function show(string $slug): View
