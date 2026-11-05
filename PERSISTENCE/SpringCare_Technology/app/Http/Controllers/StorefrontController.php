@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\DeliverySchedule;
+use App\Models\Order;
+use App\Mail\OrderPlaced;
 use App\Models\Product;
 use App\Models\ProductUnit;
 use App\Support\AcademyAdvertisement;
@@ -12,8 +14,13 @@ use App\Support\Naira;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class StorefrontController extends Controller
 {
@@ -121,6 +128,152 @@ class StorefrontController extends Controller
             ->firstOrFail();
 
         return $this->render('storefront.product', compact('product'));
+    }
+
+    public function checkout(): View|RedirectResponse
+    {
+        $deliverySchedules = DeliverySchedule::query()
+            ->where('is_published', true)
+            ->where(fn (Builder $query) => $query->where('year', '>', now()->year)
+                ->orWhere(fn (Builder $query) => $query->where('year', now()->year)->where('month', '>=', now()->month)))
+            ->orderBy('year')->orderBy('month')->orderBy('city')->get();
+
+        $view = $this->render('storefront.checkout', compact('deliverySchedules'));
+
+        return $view->getData()['cartUnits']->isEmpty()
+            ? redirect()->route('storefront.shop')->withErrors(['cart' => 'Add an available device before checkout.'])
+            : $view;
+    }
+
+    public function placeOrder(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:80'],
+            'last_name' => ['required', 'string', 'max:80'],
+            'email' => ['required', 'email', 'max:254'],
+            'phone' => ['required', 'string', 'max:40'],
+            'delivery_address' => ['required', 'string', 'max:2000'],
+            'delivery_schedule_id' => [
+                'required',
+                'integer',
+                Rule::exists('delivery_schedules', 'id')->where('is_published', true),
+            ],
+        ]);
+
+        $unitIds = collect($request->session()->get('storefront.cart', []))
+            ->map(fn ($id) => (int) $id)->filter(fn ($id) => $id > 0)->unique()->values();
+
+        if ($unitIds->isEmpty()) {
+            throw ValidationException::withMessages(['cart' => 'Your bag is empty. Add an available device before checkout.']);
+        }
+
+        $schedule = DeliverySchedule::query()
+            ->whereKey($validated['delivery_schedule_id'])
+            ->where('is_published', true)
+            ->where(fn (Builder $query) => $query->where('year', '>', now()->year)
+                ->orWhere(fn (Builder $query) => $query->where('year', now()->year)->where('month', '>=', now()->month)))
+            ->first();
+
+        if (! $schedule) {
+            throw ValidationException::withMessages(['delivery_schedule_id' => 'That delivery schedule is no longer available. Please choose another location.']);
+        }
+
+        $order = DB::transaction(function () use ($validated, $unitIds, $schedule) {
+            $units = ProductUnit::query()
+                ->whereIn('id', $unitIds)
+                ->where('status', 'available')
+                ->whereHas('product', fn (Builder $query) => $query->whereIn('products.id', $this->products()->select('products.id')))
+                ->with('product')
+                ->lockForUpdate()
+                ->get();
+
+            if ($units->count() !== $unitIds->count()) {
+                throw ValidationException::withMessages(['cart' => 'A device in your bag is no longer available. Please review your bag.']);
+            }
+
+            $orderNumber = 'SC-'.Str::upper(Str::random(10));
+            $order = Order::create([
+                'order_number' => $orderNumber,
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'delivery_address' => $validated['delivery_address'],
+                'delivery_city' => $schedule->city,
+                'delivery_month' => $schedule->month,
+                'delivery_year' => $schedule->year,
+                'subtotal' => $units->sum(fn (ProductUnit $unit) => (float) $unit->selling_price),
+                'status' => 'awaiting_payment',
+                'payment_status' => 'pending',
+            ]);
+
+            foreach ($units as $unit) {
+                $order->items()->create([
+                    'product_unit_id' => $unit->id,
+                    'product_name' => $unit->product->name,
+                    'sku' => $unit->sku,
+                    'storage' => $unit->storage,
+                    'color' => $unit->color,
+                    'condition' => $unit->condition,
+                    'unit_price' => $unit->selling_price,
+                ]);
+            }
+
+            ProductUnit::query()->whereIn('id', $unitIds)->update(['status' => 'reserved']);
+
+            return $order;
+        });
+
+        $request->session()->forget('storefront.cart');
+        $request->session()->flash('checkout_confirmation', [
+            'order_number' => $order->order_number,
+            'delivery_city' => $order->delivery_city,
+            'delivery_month' => DeliverySchedule::MONTHS[$order->delivery_month],
+            'delivery_year' => $order->delivery_year,
+            'payment' => config('storefront.payment'),
+        ]);
+
+        try {
+            Mail::to($order->email)->send(new OrderPlaced($order->load('items')));
+        } catch (Throwable $exception) {
+            report($exception);
+        }
+
+        return redirect()->route('storefront.checkout.confirmation');
+    }
+
+    public function checkoutConfirmation(): View|RedirectResponse
+    {
+        $confirmation = session('checkout_confirmation');
+
+        if (! $confirmation) {
+            return redirect()->route('storefront.shop');
+        }
+
+        return $this->render('storefront.checkout-confirmation', compact('confirmation'));
+    }
+
+    public function trackOrder(): View
+    {
+        return $this->render('storefront.track-order', ['order' => null]);
+    }
+
+    public function findOrder(Request $request): View|RedirectResponse
+    {
+        $validated = $request->validate([
+            'order_number' => ['required', 'string', 'max:24'],
+            'email' => ['required', 'email', 'max:254'],
+        ]);
+        $order = Order::query()->with('items')
+            ->where('order_number', strtoupper($validated['order_number']))
+            ->where('email', $validated['email'])
+            ->first();
+
+        if (! $order) {
+            return back()->withInput()->withErrors(['order' => 'We could not find an order matching those details.']);
+        }
+
+        return $this->render('storefront.track-order', compact('order'));
     }
 
     private function render(string $view, array $data): View

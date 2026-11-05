@@ -16,6 +16,17 @@
         newsletterStatus.hidden = true;
     }
 
+    const orderConfirmation = document.querySelector('[data-order-confirmation]');
+    if (orderConfirmation && window.Swal) {
+        window.Swal.fire({
+            icon: 'success',
+            title: 'Order received',
+            text: `Order ${orderConfirmation.dataset.orderNumber} is awaiting payment. Delivery to ${orderConfirmation.dataset.deliveryCity} is scheduled for ${orderConfirmation.dataset.deliveryMonth} ${orderConfirmation.dataset.deliveryYear}.`,
+            confirmButtonText: 'Got it',
+            confirmButtonColor: '#176b53',
+        });
+    }
+
     const cart = document.querySelector('#cart-dialog');
     let cartOpener;
 

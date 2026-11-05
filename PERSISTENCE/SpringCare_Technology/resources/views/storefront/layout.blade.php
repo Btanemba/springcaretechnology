@@ -30,6 +30,7 @@
                 <a href="{{ route('storefront.shop') }}" @if(request()->routeIs('storefront.shop', 'storefront.product')) aria-current="page" @endif>Shop all</a>
                 <a href="{{ route('storefront.home') }}#categories">Categories</a>
                 <a href="{{ route('storefront.home') }}#our-approach">Our approach</a>
+                <a href="{{ route('storefront.track-order') }}">Track order</a>
             </nav>
             <div class="header-actions">
                 <a class="icon-button" href="{{ route('storefront.shop') }}#search" aria-label="Search devices" title="Search devices"><i data-lucide="search"></i></a>
@@ -42,6 +43,7 @@
             <a href="{{ route('storefront.shop') }}">Shop all</a>
             <a href="{{ route('storefront.home') }}#categories">Categories</a>
             <a href="{{ route('storefront.home') }}#our-approach">Our approach</a>
+            <a href="{{ route('storefront.track-order') }}">Track order</a>
         </nav>
     </header>
 
@@ -70,7 +72,7 @@
                     <p class="newsletter-status" role="status" data-newsletter-status data-type="{{ session('newsletter_status_type', 'success') }}" data-title="{{ session('newsletter_status_title', 'Newsletter update') }}">{{ session('newsletter_status') }}</p>
                 @endif
             </section>
-            <nav aria-label="Footer navigation"><a href="{{ route('storefront.shop') }}">Shop devices <i data-lucide="arrow-up-right"></i></a><a href="{{ route('storefront.home') }}#our-approach">Our approach <i data-lucide="arrow-up-right"></i></a></nav>
+            <nav aria-label="Footer navigation"><a href="{{ route('storefront.shop') }}">Shop devices <i data-lucide="arrow-up-right"></i></a><a href="{{ route('storefront.track-order') }}">Track an order <i data-lucide="arrow-up-right"></i></a><a href="{{ route('storefront.home') }}#our-approach">Our approach <i data-lucide="arrow-up-right"></i></a></nav>
         </div>
         <div class="shell footer-bottom"><span>&copy; {{ date('Y') }} SpringCare Technology</span><span>All prices in Nigerian naira (₦).</span><a href="#main">Back to top &uarr;</a></div>
     </footer>
@@ -89,7 +91,7 @@
             @endforelse
         </div>
         @if($cartUnits->isNotEmpty())
-            <div class="cart-summary"><div><span>Subtotal</span><strong>{{ \App\Support\Naira::format($cartUnits->sum('selling_price')) }}</strong></div><p>Adding a device does not reserve it. Availability is subject to change. Online checkout is not yet available.</p><a class="button button-primary" href="{{ route('storefront.shop') }}">Continue shopping <i data-lucide="arrow-right"></i></a></div>
+            <div class="cart-summary"><div><span>Subtotal</span><strong>{{ \App\Support\Naira::format($cartUnits->sum('selling_price')) }}</strong></div><p>Availability is confirmed when you place your order.</p><a class="button button-primary" href="{{ route('storefront.checkout') }}">Proceed to checkout <i data-lucide="arrow-right"></i></a></div>
         @endif
     </dialog>
 </body>
