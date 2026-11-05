@@ -19,7 +19,7 @@
                                     @if($optionPhoto)<img src="{{ $optionPhoto }}" alt="" loading="lazy" width="80" height="80">@else<i data-lucide="image"></i>@endif
                                 </span>
                                 <span class="unit-choice-info">
-                                    <span class="unit-choice-sku">{{ $option->sku }}</span>
+                                    <span class="unit-choice-sku">{{ $option->sku ?: 'SKU unavailable' }}</span>
                                     <strong>{{ implode(' / ', array_filter([$option->storage, $option->color])) ?: 'Device unit' }}</strong>
                                     <span class="unit-choice-condition">{{ \App\Models\ProductUnit::CONDITIONS[$option->condition] ?? $option->condition }}</span>
                                     <span class="unit-choice-price">{{ \App\Support\Naira::format($option->selling_price) }}</span>
@@ -31,7 +31,7 @@
             </section>
             @foreach($product->units as $unit)
                 @php($photos = $unit->photoUrls())
-                <section class="unit-panel" data-unit-panel="{{ $unit->id }}" @if($selectedUnit?->id !== $unit->id) hidden @endif aria-label="{{ $product->name }}, {{ $unit->sku }}">
+                <section class="unit-panel" data-unit-panel="{{ $unit->id }}" @if($selectedUnit?->id !== $unit->id) hidden @endif aria-label="{{ $product->name }}, {{ $unit->sku ?: 'SKU unavailable' }}">
                     <div class="product-detail-grid">
                         <div class="device-gallery" data-gallery>
                             <div class="gallery-main device-photo">
@@ -44,14 +44,14 @@
                                         <button class="gallery-control gallery-control-next" type="button" data-photo-next aria-label="Next photo" title="Next photo"><i data-lucide="chevron-right"></i></button>
                                     </div>
                                 @endif
-                                <span class="gallery-caption"><i data-lucide="camera"></i> This device &middot; {{ $unit->sku }}</span>
+                                <span class="gallery-caption"><i data-lucide="camera"></i> This device &middot; {{ $unit->sku ?: 'SKU unavailable' }}</span>
                             </div>
                             @if(count($photos) > 1)<div class="gallery-thumbnails" aria-label="Device photos">@foreach($photos as $photo)<button class="gallery-thumbnail" type="button" data-photo-src="{{ $photo }}" data-photo-alt="{{ $product->name }} - {{ $unit->color }} - photo {{ $loop->iteration }}" aria-label="View photo {{ $loop->iteration }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}"><img src="{{ $photo }}" alt="" loading="lazy" width="100" height="100"></button>@endforeach</div>@endif
                         </div>
                         <div class="device-info"><p class="eyebrow">{{ $product->brand->name }} / {{ $product->category->name }}</p><h1>{{ $product->name }}</h1>@if($product->model_number)<p class="model-number">Model {{ $product->model_number }}</p>@endif<div class="device-price-row"><strong class="device-price">{{ \App\Support\Naira::format($unit->selling_price) }}</strong><span class="availability"><span></span> Available</span></div>
                             <dl class="device-facts"><div><dt><i data-lucide="hard-drive"></i> Storage</dt><dd>{{ $unit->storage ?: 'Not specified' }}</dd></div><div><dt><i data-lucide="palette"></i> Color</dt><dd>{{ $unit->color ?: 'Not specified' }}</dd></div><div><dt><i data-lucide="scan-eye"></i> Condition</dt><dd>{{ \App\Models\ProductUnit::CONDITIONS[$unit->condition] ?? $unit->condition }}</dd></div><div><dt><i data-lucide="battery-charging"></i> Battery health</dt><dd>{{ $unit->battery_health !== null ? $unit->battery_health.'%' : 'Not specified' }}</dd></div></dl>
                             <div class="device-disclosure"><h2><i data-lucide="clipboard-list"></i> Condition notes</h2><p>{{ $unit->defects ?: 'No condition notes have been provided for this device.' }}</p></div><div class="device-disclosure"><h2><i data-lucide="package-check"></i> Included accessories</h2><p>{{ $unit->included_accessories ?: 'Accessories have not been specified for this device.' }}</p></div>
-                            <form method="POST" action="{{ route('storefront.cart.add') }}" class="add-to-cart-form">@csrf<input type="hidden" name="unit_id" value="{{ $unit->id }}"><button class="button button-primary add-to-cart" type="submit"><i data-lucide="shopping-bag"></i> {{ in_array($unit->id, session('storefront.cart', []), true) ? 'Already in your bag' : 'Add to bag' }} <i data-lucide="arrow-right"></i></button></form><p class="device-cart-note">One individual device. Adding to your bag does not reserve stock.</p><p class="device-reference">Device reference: {{ $unit->sku }}</p>
+                            <form method="POST" action="{{ route('storefront.cart.add') }}" class="add-to-cart-form">@csrf<input type="hidden" name="unit_id" value="{{ $unit->id }}"><button class="button button-primary add-to-cart" type="submit"><i data-lucide="shopping-bag"></i> {{ in_array($unit->id, session('storefront.cart', []), true) ? 'Already in your bag' : 'Add to bag' }} <i data-lucide="arrow-right"></i></button></form><p class="device-cart-note">One individual device. Adding to your bag does not reserve stock.</p><p class="device-reference">Device reference: {{ $unit->sku ?: 'Unavailable' }}</p>
                         </div>
                     </div>
                 </section>

@@ -40,7 +40,7 @@
         </div>
         <div class="product-unit-dialog__body">
             <div class="product-unit-form-grid">
-                <label>SKU <input data-unit-field="sku" data-required="SKU" aria-required="true" maxlength="100"></label>
+                <label>SKU (optional) <input data-unit-field="sku" maxlength="100" placeholder="N/A or Unavailable"></label>
                 <label>Serial number <input data-unit-field="serial_number" maxlength="100"></label>
                 <label class="product-unit-form-grid__wide">Original website
                     <input data-unit-field="website" type="text" inputmode="url" maxlength="2048" placeholder="https://...">

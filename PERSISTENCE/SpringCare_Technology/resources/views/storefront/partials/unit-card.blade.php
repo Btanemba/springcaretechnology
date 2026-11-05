@@ -8,7 +8,7 @@
     <div class="product-card-info">
         <p class="product-brand">{{ $product->brand->name }} <span>{{ $product->category->name }}</span></p>
         <h3><a href="{{ route('storefront.product', ['slug' => $product->slug, 'unit' => $unit->id]) }}">{{ $product->name }}</a></h3>
-        <p class="product-variant">{{ $unit->sku }}@if($unit->storage || $unit->color) &middot; {{ implode(' / ', array_filter([$unit->storage, $unit->color])) }}@endif</p>
+        <p class="product-variant">{{ $unit->sku ?: 'SKU unavailable' }}@if($unit->storage || $unit->color) &middot; {{ implode(' / ', array_filter([$unit->storage, $unit->color])) }}@endif</p>
         <div class="product-card-bottom"><strong>{{ \App\Support\Naira::format($unit->selling_price) }}</strong><span class="availability"><span></span> Available</span></div>
     </div>
 </article>

@@ -39,7 +39,7 @@ class ProductUnitNewsletter
                             productName: $product->name,
                             brandName: $product->brand->name,
                             categoryName: $product->category->name,
-                            sku: $unit->sku,
+                            sku: $unit->sku ?? 'Unavailable',
                             condition: ProductUnit::CONDITIONS[$unit->condition] ?? $unit->condition,
                             price: Naira::format($unit->selling_price),
                             imageUrl: $imageUrl,

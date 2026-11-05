@@ -39,7 +39,12 @@ class ProductUnitCrudController extends CrudController
         CRUD::column('sku')->type('text')->label('SKU');
         CRUD::column('product_id')->type('select')->entity('product')
             ->model(Product::class)->attribute('name')->label('Product');
-        CRUD::column('website')->type('text')->label('Original Website');
+        CRUD::addColumn([
+            'name' => 'website',
+            'type' => 'view',
+            'view' => 'vendor.backpack.crud.columns.external_link',
+            'label' => 'Original Website',
+        ]);
         CRUD::column('storage')->type('text')->label('Storage');
         CRUD::column('color')->type('text')->label('Color');
         CRUD::column('condition')->type('select_from_array')->options(ProductUnit::CONDITIONS)->label('Condition');
@@ -63,7 +68,7 @@ class ProductUnitCrudController extends CrudController
         CRUD::setValidation(ProductUnitRequest::class);
         CRUD::field('product_id')->type('select')->entity('product')
             ->model(Product::class)->attribute('name')->label('Product')->tab('Device');
-        CRUD::field('sku')->type('text')->label('SKU')->tab('Device');
+        CRUD::field('sku')->type('text')->label('SKU')->hint('Optional. Enter N/A or Unavailable if you prefer a value.')->tab('Device');
         CRUD::field('serial_number')->type('text')->label('Serial Number')->tab('Device');
         CRUD::field('website')->type('url')->label('Original Website')->hint('Where this individual device came from.')->tab('Device');
         CRUD::field('storage')->type('text')->label('Storage')->tab('Device');

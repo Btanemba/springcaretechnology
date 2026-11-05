@@ -24,7 +24,7 @@ class ProductUnitRequest extends FormRequest
     {
         return [
             'product_id' => ['required', 'integer', 'exists:products,id'],
-            'sku' => ['required', 'string', 'max:100', Rule::unique('product_units', 'sku')->ignore($this->route('id'))],
+            'sku' => ['nullable', 'string', 'max:100', Rule::unique('product_units', 'sku')->ignore($this->route('id'))],
             'serial_number' => ['nullable', 'string', 'max:100', Rule::unique('product_units', 'serial_number')->ignore($this->route('id'))],
             'website' => ['nullable', 'url', 'max:2048'],
             'storage' => ['nullable', 'string', 'max:100'],
