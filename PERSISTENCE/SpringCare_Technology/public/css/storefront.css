@@ -244,7 +244,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
 .product-detail-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 64px; align-items: start; }
 .device-gallery, .device-info { min-width: 0; }
 .gallery-main { aspect-ratio: 1; border-radius: 6px; background: var(--canvas); }
-.gallery-main > img { padding: 35px 35px 60px; }
+.gallery-main > img { width: auto; height: auto; max-width: 100%; max-height: 100%; padding: 35px 35px 60px; }
 .gallery-main .photo-placeholder { min-height: 240px; }
 .gallery-controls { position: absolute; inset: 0; pointer-events: none; }
 .gallery-control { position: absolute; top: 50%; display: grid; place-items: center; width: 42px; height: 42px; padding: 0; transform: translateY(-50%); border: 1px solid var(--line); border-radius: 50%; background: #fff; color: var(--green); box-shadow: 0 2px 10px rgb(20 40 30 / 16%); pointer-events: auto; }
