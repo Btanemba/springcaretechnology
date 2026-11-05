@@ -47,6 +47,12 @@
                 </label>
                 <label>Storage <input data-unit-field="storage" maxlength="100" placeholder="e.g. 128 GB"></label>
                 <label>Color <input data-unit-field="color" maxlength="100"></label>
+                <label class="product-unit-form-grid__wide">Description
+                    <textarea data-unit-field="description" rows="3"></textarea>
+                </label>
+                <label class="product-unit-form-grid__wide">Specifications
+                    <textarea data-unit-field="specifications" rows="4"></textarea>
+                </label>
                 <label>Battery health (%) <input data-unit-field="battery_health" type="text" inputmode="numeric"></label>
                 <label>Condition
                     <select data-unit-field="condition" data-required="Condition" aria-required="true">

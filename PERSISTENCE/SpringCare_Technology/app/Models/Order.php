@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Order extends Model
 {
+    use CrudTrait;
+
     public const STATUSES = [
         'awaiting_payment' => 'Awaiting Payment',
         'payment_confirmed' => 'Payment Confirmed',

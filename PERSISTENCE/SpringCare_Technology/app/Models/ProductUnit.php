@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['product_id', 'sku', 'serial_number', 'website', 'storage', 'color', 'battery_health', 'condition', 'defects', 'included_accessories', 'photos', 'selling_price', 'status'])]
+#[Fillable(['product_id', 'sku', 'serial_number', 'website', 'storage', 'color', 'description', 'specifications', 'battery_health', 'condition', 'defects', 'included_accessories', 'photos', 'selling_price', 'status'])]
 class ProductUnit extends Model
 {
     use CrudTrait;

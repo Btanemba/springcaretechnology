@@ -1,9 +1,9 @@
 @extends('storefront.layout')
 @section('title', $product->name.' | SpringCare Technology')
-@section('description', \Illuminate\Support\Str::limit(strip_tags($product->description ?? 'Explore this device at SpringCare Technology.'), 155))
+@php($selectedUnit = $product->units->firstWhere('id', request()->integer('unit')) ?? $product->units->first())
+@section('description', \Illuminate\Support\Str::limit(strip_tags($selectedUnit?->description ?? 'Explore this device at SpringCare Technology.'), 155))
 
 @section('content')
-    @php($selectedUnit = $product->units->firstWhere('id', request()->integer('unit')) ?? $product->units->first())
     <div class="shell product-section">
         <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="{{ route('storefront.home') }}">Home</a><i data-lucide="chevron-right"></i><a href="{{ route('storefront.shop') }}">Shop</a><i data-lucide="chevron-right"></i><a href="{{ route('storefront.shop', ['category' => $product->category->slug]) }}">{{ $product->category->name }}</a><i data-lucide="chevron-right"></i><span aria-current="page">{{ $product->name }}</span></nav>
         @if($product->units->isNotEmpty())
@@ -54,11 +54,11 @@
                             <form method="POST" action="{{ route('storefront.cart.add') }}" class="add-to-cart-form">@csrf<input type="hidden" name="unit_id" value="{{ $unit->id }}"><button class="button button-primary add-to-cart" type="submit"><i data-lucide="shopping-bag"></i> {{ in_array($unit->id, session('storefront.cart', []), true) ? 'Already in your bag' : 'Add to bag' }} <i data-lucide="arrow-right"></i></button></form><p class="device-cart-note">One individual device. Adding to your bag does not reserve stock.</p><p class="device-reference">Device reference: {{ $unit->sku ?: 'Unavailable' }}</p>
                         </div>
                     </div>
+                    <section class="product-specifications" aria-labelledby="details-title-{{ $unit->id }}"><div><p class="eyebrow">A CLOSER LOOK</p><h2 id="details-title-{{ $unit->id }}">More about this device.</h2></div><div><h3>Overview</h3><div class="prose-text">{{ $unit->description ?: 'A product description has not been added yet.' }}</div><h3>Specifications</h3><div class="prose-text specifications-text">{{ $unit->specifications ?: 'Specifications have not been added yet.' }}</div></div></section>
                 </section>
             @endforeach
         @else
             <div class="empty-state sold-out"><i data-lucide="package-open"></i><p class="eyebrow">{{ $product->brand->name }}</p><h1>{{ $product->name }}</h1><h2>Currently out of stock.</h2><p>There are no available units of this model right now.</p><a class="button button-primary" href="{{ route('storefront.shop') }}">Explore other devices <i data-lucide="arrow-right"></i></a></div>
         @endif
-        <section class="product-specifications" aria-labelledby="details-title"><div><p class="eyebrow">A CLOSER LOOK</p><h2 id="details-title">More about this device.</h2></div><div><h3>Overview</h3><div class="prose-text">{{ $product->description ?: 'A product description has not been added yet.' }}</div><h3>Specifications</h3><div class="prose-text specifications-text">{{ $product->specifications ?: 'Specifications have not been added yet.' }}</div></div></section>
     </div>
 @endsection

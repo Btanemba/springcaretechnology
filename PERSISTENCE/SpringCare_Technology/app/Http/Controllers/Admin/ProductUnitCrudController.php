@@ -74,6 +74,9 @@ class ProductUnitCrudController extends CrudController
         CRUD::field('website')->type('url')->label('Original Website')->hint('Where this individual device came from.')->tab('Device');
         CRUD::field('storage')->type('text')->label('Storage')->tab('Device');
         CRUD::field('color')->type('text')->label('Color')->tab('Device');
+        CRUD::field('description')->type('textarea')->label('Description')->tab('Details');
+        CRUD::field('specifications')->type('textarea')->label('Specifications')->tab('Details')
+            ->attributes(['rows' => 6]);
         CRUD::field('condition')->type('select_from_array')->options(ProductUnit::CONDITIONS)
             ->allows_null(false)->label('Condition')->tab('Condition');
         CRUD::field('battery_health')->type('number')->label('Battery Health (%)')->tab('Condition')

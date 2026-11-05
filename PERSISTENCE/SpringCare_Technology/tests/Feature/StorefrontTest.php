@@ -36,6 +36,8 @@ class StorefrontTest extends TestCase
             'sku' => 'S7-001',
             'storage' => '64 GB',
             'color' => 'Black',
+            'description' => 'S7 first unit description.',
+            'specifications' => 'S7 first unit specifications.',
             'website' => 'https://example.com/samsung-s7',
             'condition' => 'good',
             'selling_price' => 50000,
@@ -45,6 +47,8 @@ class StorefrontTest extends TestCase
             'sku' => 'S7-002',
             'storage' => '128 GB',
             'color' => 'Silver',
+            'description' => 'S7 second unit description.',
+            'specifications' => 'S7 second unit specifications.',
             'condition' => 'excellent',
             'selling_price' => 65000,
             'status' => 'available',
@@ -55,7 +59,9 @@ class StorefrontTest extends TestCase
             ->assertOk()
             ->assertSee('S7-001')
             ->assertSee('S7-002')
-            ->assertSee('128 GB / Silver');
+            ->assertSee('128 GB / Silver')
+            ->assertSee('S7 first unit description.')
+            ->assertSee('S7 first unit specifications.');
         $this->get('/shop/samsung-s7')
             ->assertOk()
             ->assertSee('2 available')

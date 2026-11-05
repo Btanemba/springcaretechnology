@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['category_id', 'brand_id', 'name', 'slug', 'model_number', 'description', 'specifications', 'status'])]
+#[Fillable(['category_id', 'brand_id', 'name', 'slug', 'model_number', 'status'])]
 class Product extends Model
 {
     use CrudTrait;

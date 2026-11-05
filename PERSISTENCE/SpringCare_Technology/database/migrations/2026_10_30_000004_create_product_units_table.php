@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('serial_number', 100)->nullable()->unique();
             $table->string('storage', 100)->nullable();
             $table->string('color', 100)->nullable();
+            $table->text('description')->nullable();
+            $table->text('specifications')->nullable();
             $table->unsignedTinyInteger('battery_health')->nullable();
             $table->string('condition');
             $table->text('defects')->nullable();

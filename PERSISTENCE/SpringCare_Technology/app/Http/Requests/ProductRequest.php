@@ -35,8 +35,6 @@ class ProductRequest extends FormRequest
                 Rule::unique('products', 'slug')->ignore($this->route('id')),
             ],
             'model_number' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'specifications' => ['nullable', 'string'],
             'status' => ['required', Rule::in(array_keys(Product::STATUSES))],
         ];
     }

@@ -23,6 +23,15 @@ class OrderCrudController extends CrudController
 
     protected function setupListOperation(): void
     {
+        CRUD::addColumn([
+            'name' => 'order_actions',
+            'type' => 'view',
+            'view' => 'vendor.backpack.crud.columns.order_actions',
+            'orderable' => false,
+            'searchable' => false,
+            'visibleInExport' => false,
+            'label' => 'Actions',
+        ]);
         CRUD::column('order_number')->type('text')->label('Order');
         CRUD::column('first_name')->type('text')->label('First name');
         CRUD::column('last_name')->type('text')->label('Last name');
@@ -32,6 +41,7 @@ class OrderCrudController extends CrudController
         CRUD::column('status')->type('select_from_array')->options(Order::STATUSES)->label('Order status');
         CRUD::column('payment_status')->type('select_from_array')->options(Order::PAYMENT_STATUSES)->label('Payment');
         CRUD::column('subtotal')->type('number')->label('Subtotal');
+        $this->crud->removeButton('update');
     }
 
     protected function setupUpdateOperation(): void

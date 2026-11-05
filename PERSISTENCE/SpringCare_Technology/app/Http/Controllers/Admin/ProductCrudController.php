@@ -79,10 +79,6 @@ class ProductCrudController extends CrudController
         CRUD::field('model_number')->type('text')->label('Model Number')->tab('Details');
         CRUD::field('status')->type('select_from_array')->options(Product::STATUSES)
             ->default('draft')->allows_null(false)->label('Status')->tab('Details');
-        CRUD::field('description')->type('textarea')->label('Description')->tab('Description');
-        CRUD::field('specifications')->type('textarea')->label('Specifications')->tab('Description')
-            ->attributes(['rows' => 6]);
-
         if ($this->crud->getCurrentOperation() === 'update') {
             CRUD::field('units_manager')->type('custom_html')->label('Inventory units')->tab('Units')
                 ->value(view('vendor.backpack.crud.fields.product_units')->render());

@@ -29,6 +29,8 @@ class ProductUnitRequest extends FormRequest
             'website' => ['nullable', 'url', 'max:2048'],
             'storage' => ['nullable', 'string', 'max:100'],
             'color' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+            'specifications' => ['nullable', 'string'],
             'battery_health' => ['nullable', 'integer', 'between:0,100'],
             'condition' => ['required', Rule::in(array_keys(ProductUnit::CONDITIONS))],
             'defects' => ['nullable', 'string'],
