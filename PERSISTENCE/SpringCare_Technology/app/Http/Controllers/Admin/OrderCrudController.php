@@ -28,6 +28,7 @@ class OrderCrudController extends CrudController
         CRUD::column('last_name')->type('text')->label('Last name');
         CRUD::column('email')->type('text')->label('Email');
         CRUD::column('delivery_city')->type('text')->label('Delivery location');
+        CRUD::column('state')->type('text')->label('State');
         CRUD::column('status')->type('select_from_array')->options(Order::STATUSES)->label('Order status');
         CRUD::column('payment_status')->type('select_from_array')->options(Order::PAYMENT_STATUSES)->label('Payment');
         CRUD::column('subtotal')->type('number')->label('Subtotal');
@@ -36,7 +37,7 @@ class OrderCrudController extends CrudController
     protected function setupUpdateOperation(): void
     {
         CRUD::setValidation(OrderRequest::class);
-        foreach (['order_number', 'first_name', 'last_name', 'email', 'phone', 'delivery_address', 'delivery_city', 'delivery_month', 'delivery_year', 'subtotal'] as $field) {
+        foreach (['order_number', 'first_name', 'last_name', 'email', 'phone', 'state', 'delivery_address', 'delivery_city', 'delivery_month', 'delivery_year', 'subtotal'] as $field) {
             CRUD::field($field)->type('text')->attributes(['readonly' => 'readonly']);
         }
         CRUD::field('status')->type('select_from_array')->options(Order::STATUSES)->label('Order status');

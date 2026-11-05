@@ -21,7 +21,7 @@
                 <p class="eyebrow">{{ $order->order_number }}</p>
                 <h2>{{ \App\Models\Order::STATUSES[$order->status] ?? $order->status }}</h2>
                 <p>Payment: {{ \App\Models\Order::PAYMENT_STATUSES[$order->payment_status] ?? $order->payment_status }}</p>
-                <p>Delivery to <strong>{{ $order->delivery_city }}</strong> is scheduled for <strong>{{ \App\Models\DeliverySchedule::MONTHS[$order->delivery_month] }} {{ $order->delivery_year }}</strong>.</p>
+                <p>Delivery to <strong>{{ $order->delivery_city }}, {{ $order->state }}</strong> is scheduled for <strong>{{ \App\Models\DeliverySchedule::MONTHS[$order->delivery_month] }} {{ $order->delivery_year }}</strong>.</p>
                 <ul>
                     @foreach($order->items as $item)
                         <li>{{ $item->product_name }}@if($item->storage || $item->color) · {{ implode(' / ', array_filter([$item->storage, $item->color])) }}@endif</li>

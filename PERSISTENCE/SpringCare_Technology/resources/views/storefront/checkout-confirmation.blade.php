@@ -7,12 +7,13 @@
         <div data-order-confirmation
             data-order-number="{{ $confirmation['order_number'] }}"
             data-delivery-city="{{ $confirmation['delivery_city'] }}"
+            data-delivery-state="{{ $confirmation['delivery_state'] }}"
             data-delivery-month="{{ $confirmation['delivery_month'] }}"
             data-delivery-year="{{ $confirmation['delivery_year'] }}"></div>
         <p class="eyebrow">ORDER RECEIVED</p>
         <h1>Thanks, your order is in.</h1>
         <p class="checkout-order-number">Order reference <strong>{{ $confirmation['order_number'] }}</strong></p>
-        <p>Estimated delivery to <strong>{{ $confirmation['delivery_city'] }}</strong> is <strong>{{ $confirmation['delivery_month'] }} {{ $confirmation['delivery_year'] }}</strong>.</p>
+        <p>Estimated delivery to <strong>{{ $confirmation['delivery_city'] }}, {{ $confirmation['delivery_state'] }}</strong> is <strong>{{ $confirmation['delivery_month'] }} {{ $confirmation['delivery_year'] }}</strong>.</p>
         <section class="payment-instructions" aria-labelledby="payment-heading">
             <h2 id="payment-heading">Payment by bank transfer</h2>
             @if($confirmation['payment']['bank_name'] && $confirmation['payment']['account_name'] && $confirmation['payment']['account_number'])

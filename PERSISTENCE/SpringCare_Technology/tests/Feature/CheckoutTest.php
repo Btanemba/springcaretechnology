@@ -33,6 +33,7 @@ class CheckoutTest extends TestCase
                 'last_name' => 'Customer',
                 'email' => 'ada@example.com',
                 'phone' => '08012345678',
+                'state' => 'Lagos State',
                 'delivery_address' => '12 Example Street, Lagos',
                 'delivery_schedule_id' => $schedule->id,
             ])
@@ -60,6 +61,7 @@ class CheckoutTest extends TestCase
             'last_name' => 'Customer',
             'email' => 'ada@example.com',
             'phone' => '08012345678',
+            'state' => 'Lagos State',
             'delivery_address' => '12 Example Street, Lagos',
             'delivery_city' => 'Lagos',
             'delivery_month' => now()->month,

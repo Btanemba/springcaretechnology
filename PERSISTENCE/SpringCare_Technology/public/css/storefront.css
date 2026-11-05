@@ -338,6 +338,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
 .checkout-summary h2,
 .payment-instructions h2 { font-size: 19px; margin: 0 0 8px; }
 .checkout-fields label { font-size: 13px; font-weight: 600; margin-top: 8px; }
+.required-indicator { color: #c62828; }
 .checkout-fields input,
 .checkout-fields select,
 .checkout-fields textarea { background: #fff; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); font: inherit; min-height: 46px; padding: 10px 12px; width: 100%; }

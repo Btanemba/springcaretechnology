@@ -21,7 +21,7 @@
         window.Swal.fire({
             icon: 'success',
             title: 'Order received',
-            text: `Order ${orderConfirmation.dataset.orderNumber} is awaiting payment. Delivery to ${orderConfirmation.dataset.deliveryCity} is scheduled for ${orderConfirmation.dataset.deliveryMonth} ${orderConfirmation.dataset.deliveryYear}.`,
+            text: `Order ${orderConfirmation.dataset.orderNumber} is awaiting payment. Delivery to ${orderConfirmation.dataset.deliveryCity}, ${orderConfirmation.dataset.deliveryState} is scheduled for ${orderConfirmation.dataset.deliveryMonth} ${orderConfirmation.dataset.deliveryYear}.`,
             confirmButtonText: 'Got it',
             confirmButtonColor: '#176b53',
         });

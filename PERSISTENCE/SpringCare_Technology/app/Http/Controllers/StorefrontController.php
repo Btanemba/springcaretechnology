@@ -152,6 +152,7 @@ class StorefrontController extends Controller
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:254'],
             'phone' => ['required', 'string', 'max:40'],
+            'state' => ['required', 'string', 'max:120'],
             'delivery_address' => ['required', 'string', 'max:2000'],
             'delivery_schedule_id' => [
                 'required',
@@ -198,6 +199,7 @@ class StorefrontController extends Controller
                 'last_name' => $validated['last_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
+                'state' => $validated['state'],
                 'delivery_address' => $validated['delivery_address'],
                 'delivery_city' => $schedule->city,
                 'delivery_month' => $schedule->month,
@@ -228,6 +230,7 @@ class StorefrontController extends Controller
         $request->session()->flash('checkout_confirmation', [
             'order_number' => $order->order_number,
             'delivery_city' => $order->delivery_city,
+            'delivery_state' => $order->state,
             'delivery_month' => DeliverySchedule::MONTHS[$order->delivery_month],
             'delivery_year' => $order->delivery_year,
             'payment' => config('storefront.payment'),

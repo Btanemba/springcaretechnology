@@ -1,7 +1,7 @@
 <h1>We received your order</h1>
 <p>Thank you, {{ $order->first_name }} {{ $order->last_name }}. Your order is awaiting payment verification.</p>
 <p><strong>Order reference:</strong> {{ $order->order_number }}</p>
-<p><strong>Delivery to:</strong> {{ $order->delivery_city }} · {{ \App\Models\DeliverySchedule::MONTHS[$order->delivery_month] }} {{ $order->delivery_year }}</p>
+<p><strong>Delivery to:</strong> {{ $order->delivery_city }}, {{ $order->state }} · {{ \App\Models\DeliverySchedule::MONTHS[$order->delivery_month] }} {{ $order->delivery_year }}</p>
 
 <h2>Items</h2>
 <ul>

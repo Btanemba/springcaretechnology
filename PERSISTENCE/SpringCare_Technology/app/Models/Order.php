@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'last_name',
     'email',
     'phone',
+    'state',
     'delivery_address',
     'delivery_city',
     'delivery_month',
