@@ -28,6 +28,7 @@ class ProductUnitCrudController extends CrudController
 
     protected function setupListOperation()
     {
+        CRUD::setResponsiveTable(false);
         CRUD::addColumn([
             'name' => 'custom_actions',
             'type' => 'view',
