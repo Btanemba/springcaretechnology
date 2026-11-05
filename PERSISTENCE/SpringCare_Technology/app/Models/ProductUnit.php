@@ -19,6 +19,8 @@ class ProductUnit extends Model
         'good' => 'Good',
         'fair' => 'Fair',
         'for_parts' => 'For Parts',
+        'new' => 'New',
+        'used' => 'Used',
     ];
 
     public const STATUSES = [
